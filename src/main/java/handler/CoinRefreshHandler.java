@@ -3,7 +3,8 @@ package handler;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.table.JBTable;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import bean.CoinBean;
 import utils.PinYinUtils;
 import utils.WindowUtils;
@@ -18,20 +19,34 @@ import java.util.Vector;
 
 public abstract class CoinRefreshHandler extends DefaultTableModel {
     private static String[] columnNames;
+    /**
+     * 存放【编码】的位置，更新数据时用到
+     */
+    private int codeColumnIndex;
 
     private JTable table;
     private boolean colorful = true;
 
     static {
         PropertiesComponent instance = PropertiesComponent.getInstance();
-        if (instance.getValue(WindowUtils.COIN_TABLE_HEADER_KEY) == null) {
+        String tableHeader = instance.getValue(WindowUtils.COIN_TABLE_HEADER_KEY);
+        if (StringUtils.isBlank(tableHeader)) {
             instance.setValue(WindowUtils.COIN_TABLE_HEADER_KEY, WindowUtils.COIN_TABLE_HEADER_VALUE);
+            tableHeader = WindowUtils.COIN_TABLE_HEADER_VALUE;
         }
 
-        String[] configStr = Objects.requireNonNull(instance.getValue(WindowUtils.COIN_TABLE_HEADER_KEY)).split(",");
+        String[] configStr = tableHeader.split(",");
         columnNames = new String[configStr.length];
         for (int i = 0; i < configStr.length; i++) {
             columnNames[i] = WindowUtils.remapPinYin(configStr[i]);
+        }
+    }
+
+    {
+        for (int i = 0; i < columnNames.length; i++) {
+            if ("编码".equals(columnNames[i])) {
+                codeColumnIndex = i;
+            }
         }
     }
 
@@ -101,13 +116,7 @@ public abstract class CoinRefreshHandler extends DefaultTableModel {
         DefaultTableCellRenderer cellRenderer = new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-                double temp = 0.0;
-                try {
-                    String s = value.toString().replace("%", "");
-                    temp = Double.parseDouble(s);
-                } catch (Exception e) {
-
-                }
+                double temp = NumberUtils.toDouble(StringUtils.remove(Objects.toString(value), "%"));
                 if (temp > 0) {
                     if (colorful) {
                         setForeground(JBColor.RED);
@@ -140,8 +149,7 @@ public abstract class CoinRefreshHandler extends DefaultTableModel {
             return;
         }
         // 获取行
-        int columnIndex = WindowUtils.getColumnIndexByName(columnNames, "编码");
-        int index = findRowIndex(columnIndex, bean.getCode());
+        int index = findRowIndex(codeColumnIndex, bean.getCode());
         if (index >= 0) {
             updateRow(index, convertData);
         } else {

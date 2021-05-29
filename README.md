@@ -9,7 +9,7 @@ idea插件，查看基金，股票：支持A股，港股，美股
 提issues附上:使用的插件版本、IDEA详细的版本信息(到Help->about里面复制出来)，如果【Event Log】有异常信息，也请在issues附上异常  
 
 ## 安装   
-leeks-1.x.x.zip 直接在IDEA里面安装(IDEA2019.3以下只能安装1.5.x及以下版本)  
+leeks-1.x.x.zip 直接在IDEA里面安装，注意：直接选择zip安装，不要解压。  
 
 ## 使用  
 设置里面找到Leeks选项，输入基金编码，股票编码，逗号分隔，apply。    
@@ -65,9 +65,12 @@ double shift，连按两下shift，输入leeks，找到toolWindow，打开以后
 - v1.8.3  
 增加了分时图和K线图 merge from [dengerYang](https://github.com/dengerYang)  
 - V1.8.4  
-bug fix from [DAIE](https://github.com/DA1Y1)
+bug fix from [DAIE](https://github.com/DA1Y1)  
 - V1.8.5  
 保存表头顺序 from [DAIE](https://github.com/DA1Y1)  
+- V1.9.1  
+图表界面优化 from [dengerYang](https://github.com/dengerYang)  
+
 
 
 

@@ -15,7 +15,7 @@ import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.ui.content.ContentManager;
 import com.intellij.ui.table.JBTable;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import utils.LogUtil;
@@ -85,15 +85,14 @@ public class FundWindow implements ToolWindowFactory {
         table.getTableHeader().addMouseMotionListener(new MouseMotionAdapter() {
             @Override
             public void mouseDragged(MouseEvent e) {
-                String[] tableHeadChange = new String[table.getColumnCount()];
+                StringBuilder tableHeadChange = new StringBuilder();
                 for (int i = 0; i < table.getColumnCount(); i++) {
-                    tableHeadChange[i] = table.getColumnName(i);
+                    tableHeadChange.append(table.getColumnName(i)).append(",");
                 }
                 PropertiesComponent instance = PropertiesComponent.getInstance();
                 //将列名的修改放入环境中 key:fund_table_header_key
-                instance.setValue(WindowUtils.FUND_TABLE_HEADER_KEY, Arrays.toString(tableHeadChange)
-                        .substring(1, Arrays.toString(tableHeadChange).length() - 1)
-                        .replaceAll(" ", ""));
+                instance.setValue(WindowUtils.FUND_TABLE_HEADER_KEY, tableHeadChange
+                        .substring(0, tableHeadChange.length() > 0 ? tableHeadChange.length() - 1 : 0));
 
                 //LogUtil.info(instance.getValue(WindowUtils.FUND_TABLE_HEADER_KEY));
             }
@@ -104,7 +103,7 @@ public class FundWindow implements ToolWindowFactory {
             public void mousePressed(MouseEvent e) {
                 if (table.getSelectedRow() < 0)
                     return;
-                String code = String.valueOf(table.getModel().getValueAt(table.convertRowIndexToModel(table.getSelectedRow()), 0));
+                String code = String.valueOf(table.getModel().getValueAt(table.convertRowIndexToModel(table.getSelectedRow()), fundRefreshHandler.codeColumnIndex));//FIX 移动列导致的BUG
                 if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() > 1) {
                     // 鼠标左键双击
                     try {
@@ -137,7 +136,7 @@ public class FundWindow implements ToolWindowFactory {
             }
         });
         fundRefreshHandler = new TianTianFundHandler(table, refreshTimeLabel);
-        AnActionButton refreshAction = new AnActionButton("停止刷新当前表格数据", AllIcons.Actions.StopRefresh) {
+        AnActionButton refreshAction = new AnActionButton("停止刷新当前表格数据", AllIcons.Actions.Pause) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
                 fundRefreshHandler.stopHandle();
